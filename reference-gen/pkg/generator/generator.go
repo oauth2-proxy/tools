@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"k8s.io/gengo/types"
+	"k8s.io/klog/v2"
 )
 
 type Generator interface {
@@ -76,5 +79,32 @@ type generator struct {
 
 // Run runs the generation logic for the generator
 func (g *generator) Run() error {
+	typesToRender, err := g.loadTypesAndReferences()
+	if err != nil {
+		return fmt.Errorf("unable to load types: %v", err)
+	}
+
+	for typ := range typesToRender {
+		klog.Infof("Rendering reference for type: %s", typ.Name.Name)
+	}
+
 	return nil
+}
+
+// loadTypes loads the package in the generator and returns a map
+// of types and the types that reference them.
+func (g *generator) loadTypesAndReferences() (map[*types.Type][]*types.Type, error) {
+	pkg, err := loadPackage(g.packageName)
+	if err != nil {
+		return nil, fmt.Errorf("could not load package: %v", err)
+	}
+
+	typeReferences := findTypeReferences(pkg.Types)
+	pkgTypeSet := newTypeSetFromStringMap(pkg.Types)
+
+	if !g.requestedTypes.isEmpty() {
+		typeReferences = filterToRequestedTypes(typeReferences, g.requestedTypes)
+	}
+
+	return filterToPackageTypes(typeReferences, pkgTypeSet), nil
 }
