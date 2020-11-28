@@ -58,6 +58,14 @@ func (s typeSet) has(required *types.Type) bool {
 	return ok
 }
 
+func (s typeSet) toList() []*types.Type {
+	list := []*types.Type{}
+	for typ := range s {
+		list = append(list, typ)
+	}
+	return list
+}
+
 func newTypeSetFromStringMap(typeMap map[string]*types.Type) typeSet {
 	set := make(typeSet)
 	for _, t := range typeMap {

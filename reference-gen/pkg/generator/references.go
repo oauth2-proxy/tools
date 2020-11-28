@@ -68,25 +68,36 @@ func filterToPackageTypes(allReferences map[*types.Type][]*types.Type, pkgTypes 
 // findTypeReferences converts a list of types to a map of types and types that
 // reference that type.
 func findTypeReferences(allTypes map[string]*types.Type) map[*types.Type][]*types.Type {
-	m := make(map[*types.Type][]*types.Type)
+	m := make(map[*types.Type]typeSet)
 	for _, typ := range allTypes {
 		// Ensure every type is initialised, if not already
 		if _, ok := m[typ]; !ok {
-			m[typ] = []*types.Type{}
+			m[typ] = make(typeSet)
 		}
 
 		// add this type to other types that it references
 		for _, member := range typ.Members {
 			t := member.Type
 			t = tryDereference(t)
-			m[t] = append(m[t], typ)
+			if _, ok := m[t]; !ok {
+				m[t] = make(typeSet)
+			}
+			m[t].add(typ)
 		}
 
 		// Cater for aliases rather than structs
 		if typ.Underlying != nil {
 			t := tryDereference(typ.Underlying)
-			m[t] = append(m[t], typ)
+			if _, ok := m[t]; !ok {
+				m[t] = make(typeSet)
+			}
+			m[t].add(typ)
 		}
 	}
-	return m
+
+	out := make(map[*types.Type][]*types.Type)
+	for t, s := range m {
+		out[t] = s.toList()
+	}
+	return out
 }
