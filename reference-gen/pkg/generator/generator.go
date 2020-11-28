@@ -144,6 +144,7 @@ func (g *generator) renderOutput(typesToRender map[*types.Type][]*types.Type) er
 func (g *generator) buildTemplate(typesToRender map[*types.Type][]*types.Type, typeList []*types.Type) (*template.Template, error) {
 	knownTypes := newTypeSetFromList(typeList)
 	t := template.New("").Funcs(map[string]interface{}{
+		"aliasDisplayName": aliasDisplayNameFunc(knownTypes),
 		"backtick":         backtick,
 		"dereference":      tryDereference,
 		"fieldEmbedded":    fieldEmbedded,

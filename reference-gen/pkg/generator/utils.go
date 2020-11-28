@@ -95,6 +95,26 @@ func createTypeList(typesForList map[*types.Type][]*types.Type) []*types.Type {
 
 // BEGIN: template functions
 
+// aliasDisplayNameFunc constructs a aliasDisplayName function for the template
+func aliasDisplayNameFunc(knownTypes typeSet) func(t *types.Type) string {
+	return func(t *types.Type) string {
+		return aliasDisplayName(t, knownTypes)
+	}
+}
+
+// aliasDisplayName allows types to replace their alias with an alternate
+// alias display name.
+// This can be useful when a type has a custom marshalling rule.
+func aliasDisplayName(t *types.Type, knownTypes typeSet) string {
+	tags := types.ExtractCommentTags("+", t.CommentLines)
+	if alias, ok := tags["reference-gen:alias-name"]; ok {
+		// There should only be one entry
+		return alias[0]
+	}
+
+	return typeDisplayName(t.Underlying, knownTypes)
+}
+
 // anchorIDForLocalType returns the #anchor string for the local type
 func anchorIDForLocalType(t *types.Type) string {
 	return strings.ToLower(t.Name.Name)

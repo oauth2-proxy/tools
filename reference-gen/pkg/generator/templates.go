@@ -27,9 +27,9 @@ const typeTemplate = `
 ### {{ .Name.Name }}
 {{- if eq .Kind "Alias" }}
 {{ if linkForType .Underlying }}
-#### ([{{ typeDisplayName .Underlying }}]({{ linkForType .Underlying}}) alias)
+#### ([{{ aliasDisplayName . }}]({{ linkForType .Underlying}}) alias)
 {{- else -}}
-#### ({{ backtick (typeDisplayName .Underlying)}} alias)
+#### ({{ backtick (aliasDisplayName .)}} alias)
 {{- end -}}
 {{ end }}
 {{ with (typeReferences .) }}
