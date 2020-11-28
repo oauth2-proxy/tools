@@ -135,7 +135,9 @@ func (g *generator) renderOutput(typesToRender map[*types.Type][]*types.Type) er
 		return fmt.Errorf("error executing template: %v", err)
 	}
 
-	klog.Infof(b.String())
+	if err := g.writeOutput(b.Bytes()); err != nil {
+		return fmt.Errorf("error writing output: %v", err)
+	}
 	return nil
 }
 
@@ -163,4 +165,22 @@ func (g *generator) buildTemplate(typesToRender map[*types.Type][]*types.Type, t
 	}
 
 	return t, nil
+}
+
+func (g *generator) writeOutput(content []byte) error {
+	if g.outputFileName == "" {
+		_, err := os.Stdout.Write(content)
+		if err != nil {
+			return fmt.Errorf("error writing output to stdout: %v", err)
+		}
+		klog.Infof("Rendered output written to stdout")
+		return nil
+	}
+
+	if err := ioutil.WriteFile(g.outputFileName, content, 0600); err != nil {
+		return fmt.Errorf("could not write file %q: %v", g.outputFileName, err)
+	}
+	klog.Infof("Rendered output written to %q", g.outputFileName)
+
+	return nil
 }
