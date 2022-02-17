@@ -25,7 +25,7 @@ const packageTemplate = `
 const typeTemplate = `
 {{ define "type" }}
 ### {{ .Name.Name }}
-{{- if eq .Kind "Alias" }}
+{{- if or (eq .Kind "Alias") (aliasDisplayName .) }}
 {{ if linkForType .Underlying }}
 #### ([{{ aliasDisplayName . }}]({{ linkForType .Underlying}}) alias)
 {{- else -}}
@@ -43,7 +43,7 @@ const typeTemplate = `
 {{ end }}
 {{ renderCommentsLF .CommentLines }}
 
-{{ if .Members -}}
+{{ if visibleMembers .Members -}}
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 {{- template "members_with_embed" . }}
@@ -53,6 +53,7 @@ const typeTemplate = `
 
 const memberTemplate = `
 {{ define "member" }}
+  {{- if not (hideMember .) }}
 | {{ backtick (fieldName .) }} | _{{- if linkForType .Type -}}
     [{{ typeDisplayName .Type }}]({{ linkForType .Type}})
   {{- else -}}
@@ -62,6 +63,7 @@ const memberTemplate = `
   {{ end -}}
   {{- if isOptionalMember . }} _(Optional)_ {{ end -}}
   {{- renderCommentsBR .CommentLines }} |
+  {{- end -}}
 {{- end }}
 `
 

@@ -149,6 +149,7 @@ func (g *generator) buildTemplate(typesToRender map[*types.Type][]*types.Type, t
 		"dereference":      tryDereference,
 		"fieldEmbedded":    fieldEmbedded,
 		"fieldName":        fieldName,
+		"hideMember":       hideMember,
 		"isOptionalMember": isOptionalMember,
 		"linkForType":      linkForTypeFunc(knownTypes),
 		"renderCommentsBR": renderCommentsBR,
@@ -156,6 +157,7 @@ func (g *generator) buildTemplate(typesToRender map[*types.Type][]*types.Type, t
 		"sortedTypes":      sortTypes,
 		"typeDisplayName":  typeDisplayNameFunc(knownTypes),
 		"typeReferences":   typeReferencesFunc(typesToRender, knownTypes),
+		"visibleMembers":   visibleMembers,
 		"visibleTypes":     visibleTypes,
 	})
 

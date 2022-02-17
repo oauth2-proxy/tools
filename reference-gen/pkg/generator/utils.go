@@ -120,7 +120,11 @@ func aliasDisplayName(t *types.Type, knownTypes typeSet) string {
 		return alias[0]
 	}
 
-	return typeDisplayName(t.Underlying, knownTypes)
+	if t.Underlying != nil {
+		return typeDisplayName(t.Underlying, knownTypes)
+	}
+
+	return ""
 }
 
 // anchorIDForLocalType returns the #anchor string for the local type
@@ -159,6 +163,11 @@ func filterCommentTags(comments []string) []string {
 	return out
 }
 
+// hideMember determines if a member is to private
+func hideMember(m types.Member) bool {
+	return unicode.IsLower(rune(m.Name[0]))
+}
+
 // hideType determines if a type is to private
 func hideType(t *types.Type) bool {
 	return unicode.IsLower(rune(t.Name.Name[0]))
@@ -181,6 +190,10 @@ func linkForTypeFunc(knownTypes typeSet) func(t *types.Type) string {
 // linkForType returns an anchor to the type if it can be generated. returns
 // empty string if it is not a local type or unrecognized external type.
 func linkForType(t *types.Type, knownTypes typeSet) string {
+	if t == nil {
+		return ""
+	}
+
 	t = tryDereference(t) // dereference kind=Pointer
 
 	if knownTypes.has(t) {
@@ -281,6 +294,17 @@ func typeReferences(t *types.Type, references map[*types.Type][]*types.Type, kno
 		}
 	}
 	sortTypes(out)
+	return out
+}
+
+// visibleMembers filters the members to only those that are exported
+func visibleMembers(in []types.Member) []types.Member {
+	var out []types.Member
+	for _, t := range in {
+		if !hideMember(t) {
+			out = append(out, t)
+		}
+	}
 	return out
 }
 
