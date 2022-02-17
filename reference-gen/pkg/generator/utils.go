@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"strings"
@@ -255,8 +256,8 @@ func typeDisplayName(t *types.Type, knownTypes typeSet) string {
 		types.Builtin:
 		// noop
 	case types.Map:
-		// return original name
-		return t.Name.Name
+		// construct map based on element name
+		return fmt.Sprintf("map[%s]%s", t.Key.Name.Name, s)
 	default:
 		klog.Fatalf("type %s has kind=%v which is unhandled", t.Name, t.Kind)
 	}
