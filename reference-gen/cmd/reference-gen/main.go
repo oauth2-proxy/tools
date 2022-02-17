@@ -1,6 +1,8 @@
 package main
 
 import (
+	goflag "flag"
+
 	"github.com/oauth2-proxy/tools/reference-gen/pkg/generator"
 	flag "github.com/spf13/pflag"
 	"k8s.io/klog/v2"
@@ -16,7 +18,10 @@ var (
 
 func main() {
 	klog.InitFlags(nil)
-	flag.Set("logtostderr", "true")
+	flag.CommandLine.AddGoFlagSet(goflag.CommandLine)
+	if err := flag.Set("logtostderr", "true"); err != nil {
+		klog.Fatalf("error setting logging: %v", err)
+	}
 	flag.Parse()
 
 	gen, err := generator.NewGenerator(*packageName, *requiredTypes, *headerFile, *outputFile, *templateDir)
