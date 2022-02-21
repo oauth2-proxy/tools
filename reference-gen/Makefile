@@ -12,7 +12,7 @@ TESTCOVER ?= -coverprofile c.out
 endif
 
 .PHONY: lint
-lint: validate-go-version
+lint: validate-go-version check-golangci-lint
 	GO111MODULE=on $(GOLANGCILINT) run
 
 .PHONY: test
@@ -28,5 +28,12 @@ validate-go-version:
 		exit 1; \
 	elif [ $(GO_MINOR_VERSION) -lt $(MINIMUM_SUPPORTED_GO_MINOR_VERSION) ] ; then \
 		echo '$(GO_VERSION_VALIDATION_ERR_MSG)';\
+		exit 1; \
+	fi
+
+.PHONY: check-golangci-lint
+check-golangci-lint:
+	@ if [ ! $$(which golangci-lint) ]; then \
+		echo "Missing golangci-lint, please install from https://golangci-lint.run/usage/install/ before linting"; \
 		exit 1; \
 	fi
