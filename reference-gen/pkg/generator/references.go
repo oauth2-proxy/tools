@@ -77,6 +77,10 @@ func findTypeReferences(allTypes map[string]*types.Type) map[*types.Type][]*type
 
 		// add this type to other types that it references
 		for _, member := range typ.Members {
+			if hideMember(member) {
+				// Don't include a reference if the member is private.
+				continue
+			}
 			t := member.Type
 			t = tryDereference(t)
 			if _, ok := m[t]; !ok {

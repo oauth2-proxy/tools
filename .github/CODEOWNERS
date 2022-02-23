@@ -1,0 +1,2 @@
+# Default owner should be a core org reviewers unless overridden by later rules in this file
+* @oauth2-proxy/reviewers

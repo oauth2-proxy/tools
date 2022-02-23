@@ -42,8 +42,7 @@ const typeTemplate = `
   )
 {{ end }}
 {{ renderCommentsLF .CommentLines }}
-
-{{ if visibleMembers .Members -}}
+{{ if visibleMembers .Members }}
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 {{- template "members_with_embed" . }}
