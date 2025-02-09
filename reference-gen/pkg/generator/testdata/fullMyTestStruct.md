@@ -9,10 +9,10 @@ members table as the origin struct.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a json tag, so the name will be capitalised. |
+| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a tag, so the name will be capitalised. |
 
 ### AliasedExternalMap
-#### (`map[string]interface{}` alias)
+#### (`map[string]any` alias)
 
 (**Appears on:** [MyTestStruct](#myteststruct))
 
@@ -77,4 +77,4 @@ SomeSubStruct is a struct to go within another struct.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a json tag, so the name will be capitalised. |
+| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a tag, so the name will be capitalised. |

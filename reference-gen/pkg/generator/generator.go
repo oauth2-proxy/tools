@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -68,7 +67,7 @@ func loadHeaderText(fileName string) ([]byte, error) {
 		return []byte{}, nil
 	}
 
-	headerText, err := ioutil.ReadFile(fileName)
+	headerText, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %v", err)
 	}
@@ -184,7 +183,7 @@ func (g *generator) writeOutput(content []byte) error {
 		return nil
 	}
 
-	if err := ioutil.WriteFile(g.outputFileName, content, 0600); err != nil {
+	if err := os.WriteFile(g.outputFileName, content, 0600); err != nil {
 		return fmt.Errorf("could not write file %q: %v", g.outputFileName, err)
 	}
 	klog.Infof("Rendered output written to %q", g.outputFileName)

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -16,7 +15,7 @@ import (
 )
 
 const (
-	testDataPackage = "github.com/oauth2-proxy/tools/reference-gen/pkg/generator/testdata"
+	testDataPackage = "github.com/oauth2-proxy/tools/reference-gen/pkg/generator/testdata/"
 )
 
 //go:embed testdata/*.md
@@ -29,35 +28,37 @@ var _ = Describe("Generator", func() {
 		expectedOutputFileName string
 	}
 
-	DescribeTable("should generate the expected output", func(in generatorTableInput) {
-		By("Creating an output file")
-		outputFile, err := ioutil.TempFile("", "oauth2-proxy-reference-generator-suite-")
-		Expect(err).ToNot(HaveOccurred())
+	DescribeTable("should generate the expected output for json & yaml tags", func(in generatorTableInput) {
+		for _, pkg := range []string{"json", "yaml"} {
+			By(pkg + ": Creating an output file")
+			outputFile, err := os.CreateTemp("", pkg+"-oauth2-proxy-reference-generator-suite-")
+			Expect(err).ToNot(HaveOccurred())
 
-		outputFileName := outputFile.Name()
-		Expect(outputFile.Close()).To(Succeed())
+			outputFileName := outputFile.Name()
+			Expect(outputFile.Close()).To(Succeed())
 
-		By("Constructing the generator")
-		gen, err := NewGenerator(testDataPackage, in.requestedTypes, in.headerFileName, outputFileName, "")
-		Expect(err).ToNot(HaveOccurred())
+			By(pkg + ": Constructing the generator")
+			gen, err := NewGenerator(testDataPackage+pkg, in.requestedTypes, in.headerFileName, outputFileName, "")
+			Expect(err).ToNot(HaveOccurred())
 
-		By("Running the generator")
-		Expect(gen.Run()).To(Succeed())
+			By(pkg + ": Running the generator")
+			Expect(gen.Run()).To(Succeed())
 
-		By("Loading the output")
-		output, err := os.ReadFile(outputFileName)
-		Expect(err).ToNot(HaveOccurred())
+			By(pkg + ": Loading the output")
+			output, err := os.ReadFile(outputFileName)
+			Expect(err).ToNot(HaveOccurred())
 
-		By("Loading the expected output")
-		expectedOutput, err := testOutputs.ReadFile(in.expectedOutputFileName)
-		Expect(err).ToNot(HaveOccurred())
+			By(pkg + ": Loading the expected output")
+			expectedOutput, err := testOutputs.ReadFile(in.expectedOutputFileName)
+			Expect(err).ToNot(HaveOccurred())
 
-		By("Comparing the outputs")
-		diffs := diff.Do(string(expectedOutput), string(output))
-		if len(diffs) > 1 {
-			// A single diff means the two files are equal, only fail if there is more than one diff.
-			fmt.Printf("\nUnexpected diff:\n\n%s\n", prettyPrintDiff(diffs))
-			Fail("Unexpected diff in generated output")
+			By(pkg + ": Comparing the outputs")
+			diffs := diff.Do(string(expectedOutput), string(output))
+			if len(diffs) > 1 {
+				// A single diff means the two files are equal, only fail if there is more than one diff.
+				fmt.Printf("\n%s: Unexpected diff:\n\n%s\n", pkg, prettyPrintDiff(diffs))
+				Fail(pkg + ": Unexpected diff in generated output")
+			}
 		}
 	},
 		Entry("With the full test structure, pulls in references for all substructs", generatorTableInput{

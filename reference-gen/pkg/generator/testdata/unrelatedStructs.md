@@ -18,4 +18,4 @@ SomeSubStruct is a struct to go within another struct.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a json tag, so the name will be capitalised. |
+| `NonTaggedField` | _bool_ | NonTaggedField doesn't have a tag, so the name will be capitalised. |
