@@ -145,11 +145,19 @@ func fieldEmbedded(m types.Member) bool {
 
 // fieldName extracts the field name from the json tag
 func fieldName(m types.Member) string {
-	v := reflect.StructTag(m.Tags).Get("json")
-	v = strings.Split(v, ",")[0]
-	if v != "" {
-		return v
+	vj := reflect.StructTag(m.Tags).Get("json")
+	vj = strings.Split(vj, ",")[0]
+
+	if vj != "" {
+		return vj
 	}
+
+	vy := reflect.StructTag(m.Tags).Get("yaml")
+	vy = strings.Split(vy, ",")[0]
+	if vy != "" {
+		return vy
+	}
+
 	return m.Name
 }
 
