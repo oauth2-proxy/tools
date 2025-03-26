@@ -2,7 +2,7 @@ module github.com/oauth2-proxy/tools/reference-gen
 
 go 1.23.0
 
-toolchain go1.24.1
+toolchain go1.23.7
 
 require (
 	github.com/go-git/go-git/v5 v5.4.2
