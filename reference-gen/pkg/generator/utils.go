@@ -7,7 +7,7 @@ import (
 	"strings"
 	"unicode"
 
-	"k8s.io/gengo/types"
+	"k8s.io/gengo/v2/types"
 	"k8s.io/klog/v2"
 )
 
@@ -111,11 +111,53 @@ func aliasDisplayNameFunc(knownTypes typeSet) func(t *types.Type) string {
 	}
 }
 
+// extractCommentTags parses comments for lines of the form:
+//
+//	'marker' + "key=value".
+//
+// Values are optional; "" is the default.  A tag can be specified more than
+// one time and all values are returned.  If the resulting map has an entry for
+// a key, the value (a slice) is guaranteed to have at least 1 element.
+//
+// Example: if you pass "+" for 'marker', and the following lines are in
+// the comments:
+//
+//	+foo=value1
+//	+bar
+//	+foo=value2
+//	+baz="qux"
+//
+// Then this function will return:
+//
+//	map[string][]string{"foo":{"value1, "value2"}, "bar": {""}, "baz": {"qux"}}
+//
+// Source: https://github.com/kubernetes/gengo/blob/1244d31929d7/types/comments.go#L42
+func extractCommentTags(marker string, lines []string) map[string][]string {
+	out := map[string][]string{}
+	for _, line := range lines {
+		line = strings.Trim(line, " ")
+		if len(line) == 0 {
+			continue
+		}
+		if !strings.HasPrefix(line, marker) {
+			continue
+		}
+		// TODO: we could support multiple values per key if we split on spaces
+		kv := strings.SplitN(line[len(marker):], "=", 2)
+		if len(kv) == 2 {
+			out[kv[0]] = append(out[kv[0]], kv[1])
+		} else if len(kv) == 1 {
+			out[kv[0]] = append(out[kv[0]], "")
+		}
+	}
+	return out
+}
+
 // aliasDisplayName allows types to replace their alias with an alternate
 // alias display name.
 // This can be useful when a type has a custom marshalling rule.
 func aliasDisplayName(t *types.Type, knownTypes typeSet) string {
-	tags := types.ExtractCommentTags("+", t.CommentLines)
+	tags := extractCommentTags("+", t.CommentLines)
 	if alias, ok := tags["reference-gen:alias-name"]; ok {
 		// There should only be one entry
 		return alias[0]
@@ -184,7 +226,7 @@ func hideType(t *types.Type) bool {
 
 // isOptionalMember determines if a member is marked optional
 func isOptionalMember(m types.Member) bool {
-	tags := types.ExtractCommentTags("+", m.CommentLines)
+	tags := extractCommentTags("+", m.CommentLines)
 	_, ok := tags["optional"]
 	return ok
 }

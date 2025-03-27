@@ -3,19 +3,19 @@ package generator
 import (
 	"fmt"
 
-	"k8s.io/gengo/parser"
-	"k8s.io/gengo/types"
+	"k8s.io/gengo/v2/parser"
+	"k8s.io/gengo/v2/types"
 )
 
 // loadPackage loads and parses the given package.
 func loadPackage(packageName string) (*types.Package, error) {
 	b := parser.New()
 	// the following may silently fail (turn on -v=4 to see logs)
-	if err := b.AddDir(packageName); err != nil {
+	if err := b.LoadPackages(packageName); err != nil {
 		return nil, err
 	}
 
-	universe, err := b.FindTypes()
+	universe, err := b.NewUniverse()
 	if err != nil {
 		return nil, fmt.Errorf("failed to find types for package: %v", err)
 	}
