@@ -8,8 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5/utils/diff"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/ginkgo/extensions/table"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/sergi/go-diff/diffmatchpatch"
 )
